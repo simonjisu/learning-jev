@@ -8,6 +8,7 @@ dependencies = [
     "datasets>=5.0.1",
     "huggingface>=0.0.1",
     "ipykernel>=7.3.0",
+    "openai>=3.19.0",
     "torch>=2.14.0",
 ]
 
