@@ -37,3 +37,28 @@ TypeSafe 문서의 `noul`은 NanoJev 로컬 요청의 `boolean`에 대응하지�
 ## 4. 구조 비교 실습
 
 공유 대화에 나온 대안을 비교하려면 [mini-jev](https://github.com/r-ms/mini-jev)의 answer-token logits, [jevlike](https://github.com/vinnylarouge/jevlike)의 option-conditioned attention, NanoJev의 candidate path + decision head를 같은 `(state, question, options)` 사례에 대입해 본다. 각 방식에서 **여러 토큰으로 된 새 옵션을 추가할 때 무엇을 다시 계산하는지**, **후보 간 상호작용이 어디서 생기는지**, **보정이 어디에 적용되는지**를 기록하면 좋다. 이 비교는 아키텍처 아이디어 비교이며 Jev 내부 구조 판정은 아니다.
+
+## 5. Contrastive Language Models
+
+[CLM 학습 노트북](../notebooks/clm_training.ipynb)은 [technical report](https://contrastive-lm.notion.site/)와 [공개 학습 코드](https://github.com/Contrastive-LM/CLM/tree/bb42c6c5bf914fd449bed2f6ca65be80602cb1f7)를 바탕으로 다음을 실행한다.
+
+- frozen state/action embedding 위에서 서로 다른 projection head 두 개를 학습
+- 공개 `finetune.py`의 group-masked bidirectional InfoNCE를 직접 import해 실행
+- pre-training → synthetic hard-negative mid-training → 60/40 agentic/replay post-training을 작은 합성 데이터로 관찰
+- candidate dot product가 Choice, Noul, Score 확률로 바뀌는 과정 확인
+
+CLM은 2026-09-23 공개된 technical report다. 공개 저자 성능은 독립 재현으로 확인해야 하며, CLM의 구조가 Jev의 실제 내부 구조와 같다는 증거는 없다.
+
+## 6. Primitive별 학습 데이터셋
+
+[Jev-like 학습 노트북](../notebooks/jevlike_training.ipynb)의 데이터 구성은 다음과 같다.
+
+| Primitive | 데이터셋 | 학습 정답 |
+| --- | --- | --- |
+| Choice | [BANKING77](https://github.com/PolyAI-LDN/task-specific-datasets) | 은행 문의의 77개 의도 중 하나 |
+| Noul | [GoEmotions simplified](https://huggingface.co/datasets/google-research-datasets/go_emotions) | 감정별 포함 여부 |
+| Score | [SST-5 sentence-level](https://huggingface.co/datasets/SetFit/sst5/tree/e51bdcd8cd3a30da231967c1a249ba59361279a3) | 0 매우 부정적 → 1 부정적 → 2 중립 → 3 긍정적 → 4 매우 긍정적 |
+
+SST-5는 영화 리뷰의 **순서형 감성 극성** 실습용이다. train 8,544 / validation 1,101 / test 2,210개이며 감정별 강도나 일반 위험도 정답은 제공하지 않는다. [Socher et al., EMNLP 2013](https://aclanthology.org/D13-1170/), [SetFit dataset card](https://huggingface.co/datasets/SetFit/sst5/blob/e51bdcd8cd3a30da231967c1a249ba59361279a3/README.md). 선택한 SetFit 저장소에는 데이터 라이선스가 명시되어 있지 않으며 manifest에도 이를 기록했다.
+
+`python scripts/download_decision_datasets.py`로 세 데이터셋을 `.cache/jevlike-training/datasets/`에 내려받는다. 고정 revision, 원본 URL, SHA-256은 데이터별 `manifest.json`에 기록한다. 노트북의 SST-5 로딩·균형 표본 추출·Score 학습 레코드 변환 예제는 미실행 상태다.
