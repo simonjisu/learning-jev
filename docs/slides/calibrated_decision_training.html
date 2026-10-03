@@ -196,6 +196,47 @@ svg .lbl-strong { fill: var(--ink); font-weight: 600; }
 .vs { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
 @media (max-width: 560px) { .vs { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: reduce) { .navbar .progress i { transition: none; } }
+/* architecture diagrams */
+.dg { display: flex; flex-direction: column; gap: 10px; }
+.dg-scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px; }
+.dg-scroll svg { display: block; width: 100%; min-width: 820px; height: auto; }
+.dg-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.dg-cap { font-size: var(--step--1); color: var(--ink); background: var(--sunk); border-radius: 8px; padding: 10px 14px; min-height: 3.4em; max-width: none; }
+.dg-cap b { font-family: var(--f-mono); margin-right: 6px; }
+.dg svg [data-stage] { transition: opacity .25s; }
+.dg.focus svg [data-stage]:not(.on) { opacity: .14; }
+svg .chip { fill: var(--sunk); stroke: var(--line); }
+svg .chip-l { fill: var(--laya); }
+svg .chip-d { fill: var(--decider); }
+svg .t-chip { font-family: var(--f-sans); font-size: 12px; fill: var(--ink); }
+svg .t-on { font-family: var(--f-sans); font-size: 12px; fill: var(--surface); font-weight: 600; }
+svg .t-title { font-family: var(--f-sans); font-size: 14px; font-weight: 600; fill: var(--ink); }
+svg .t-sub { font-family: var(--f-sans); font-size: 12px; fill: var(--ink-2); }
+svg .t-mono { font-family: var(--f-mono); font-size: 11.5px; fill: var(--ink-2); }
+svg .t-mono-strong { font-family: var(--f-mono); font-size: 12px; fill: var(--ink); font-weight: 600; }
+svg .box { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; }
+svg .box-l { fill: var(--laya-soft); stroke: var(--laya); stroke-width: 1.5; }
+svg .box-d { fill: var(--decider-soft); stroke: var(--decider); stroke-width: 1.5; }
+svg .ar { fill: none; stroke: var(--ink-2); stroke-width: 1.5; }
+svg .ar-dash { stroke-dasharray: 5 4; }
+svg .f-ar { fill: var(--ink-2); }
+svg .vec { fill: var(--line); }
+svg .brace { fill: none; stroke: var(--muted); stroke-width: 1.2; }
+svg .row-line { stroke: var(--line); stroke-width: 1; }
+.types { display: grid; grid-template-columns: 110px minmax(0, 1fr) minmax(0, 1fr); gap: 10px; align-items: stretch; }
+.types > .th { font-weight: 600; font-size: var(--step--1); color: var(--ink-2); padding: 6px 4px; }
+.types > .rh { font-weight: 600; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
+.types > .rh span { font-size: .78rem; color: var(--muted); font-weight: 400; }
+.types > .cell { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: var(--step--1); display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.types > .cell.l { border-top: 3px solid var(--laya); }
+.types > .cell.d { border-top: 3px solid var(--decider); }
+.types .tokens { margin-top: 0; }
+.types .out { font-family: var(--f-mono); font-size: .8rem; color: var(--ink); }
+.types .iso { display: flex; flex-direction: column; gap: 4px; }
+.types .iso div { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+@media (max-width: 860px) { .types { grid-template-columns: minmax(0, 1fr); } .types > .th { display: none; } .types > .rh { padding-top: 8px; } }
+@media (prefers-reduced-motion: reduce) { .dg svg [data-stage] { transition: none; } }
+
 </style>
 </head>
 <body>
@@ -272,41 +313,79 @@ svg .lbl-strong { fill: var(--ink); font-weight: 600; }
   </div>
 </section>
 
-<!-- 3 -->
-<section class="slide" data-title="Readout 구조">
+<!-- 3a -->
+<section class="slide" data-title="Laya 아키텍처">
   <div class="slide-inner">
-    <div class="eyebrow">1.11.1 · 구조 <span class="tag laya">Laya</span><span class="tag decider">decider</span></div>
-    <h2>둘 다 생성하지 않는다 · forward 한 번으로 K개 후보 분포를 읽는다</h2>
-    <p class="lead">LLM 학습에 익숙하다면 “decode 없이 prefill 한 번 + 특정 위치의 hidden state를 분류기로 읽는다”로 생각하면 된다.</p>
-    <div class="grid2">
-      <div class="panel laya stack">
-        <h3>Laya · encoder + 후보별 scalar</h3>
-        <div class="pipe">
-          <div class="node"><b>입력</b> state · question · 후보마다 marker
-            <div class="tokens"><span class="tok">[CLS]</span><span class="tok">결제는 됐는데…</span><span class="tok mk-l">⟨c1⟩</span><span class="tok">결제팀</span><span class="tok mk-l">⟨c2⟩</span><span class="tok">배송팀</span><span class="tok mk-l">⟨c3⟩</span><span class="tok">환불팀</span></div></div>
-          <div class="arrow">▼</div>
-          <div class="node"><b>ModernBERT / mmBERT</b> · bidirectional encoder, 학습 대상</div>
-          <div class="arrow">▼ marker 위치 hidden h₁ h₂ h₃</div>
-          <div class="node hl-l"><b>shared scalar scorer</b> · z<sub>k</sub> = s(h<sub>k</sub>), 모든 후보에 같은 head</div>
-          <div class="arrow">▼</div>
-          <div class="node"><b>q = softmax(z / T<sub>type</sub>)</b> · Choice / Score / Noul</div>
-        </div>
+    <div class="eyebrow">1.11.1 · 구조 <span class="tag laya">Laya · laya/common.py DecisionModel</span></div>
+    <h2>Laya: encoder 한 번, 후보마다 [MASK] 벡터 하나, 같은 scorer</h2>
+    <div class="dg" id="dgLaya">
+      <div class="dg-bar"><button data-dg-prev>◀ 이전</button><button class="primary" data-dg-next>다음 단계 ▶</button><button data-dg-all>전체 보기</button><span class="count" data-dg-count>전체</span></div>
+      <figure style="margin:0"><div class="dg-scroll" id="layaSvg"></div>
+      <figcaption class="dg-cap" data-dg-cap aria-live="polite"></figcaption></figure>
+    </div>
+    <p class="small muted">LLM에 비유하면 BERT식 cross-encoder다. 질문·옵션·state를 한 시퀀스로 붙여 양방향으로 읽고, 옵션마다 박아 둔 [MASK] 위치를 그 옵션의 요약 벡터로 쓴다. 예시 수치(z, q)는 설명용이다. 출처: <a href="https://github.com/NandhaKishorM/laya/blob/fa9a2a7070b1789912a49ae24603bbfb1a78b001/laya/common.py" target="_blank" rel="noopener">common.py</a> build_head · DecisionModel, MPS 학습 스크립트의 optimizer 설정.</p>
+  </div>
+</section>
+
+<!-- 3b -->
+<section class="slide" data-title="decider 아키텍처">
+  <div class="slide-inner">
+    <div class="eyebrow">1.11.1 · 구조 <span class="tag decider">decider · decider/model.py + prompt.py</span></div>
+    <h2>decider: causal LM의 “다음 글자” 위치에서 선택지 글자 확률만 읽는다</h2>
+    <div class="dg" id="dgDec">
+      <div class="dg-bar"><button data-dg-prev>◀ 이전</button><button class="primary" data-dg-next>다음 단계 ▶</button><button data-dg-all>전체 보기</button><span class="count" data-dg-count>전체</span></div>
+      <figure style="margin:0"><div class="dg-scroll" id="decSvg"></div>
+      <figcaption class="dg-cap" data-dg-cap aria-live="polite"></figcaption></figure>
+    </div>
+    <p class="small muted">객관식 문제를 LLM에 주고 “Answer: (” 뒤에 올 첫 토큰의 확률을 A/B/C로 제한해 읽는 것과 같다. 새 head를 붙이지 않고 기존 LM head의 행을 재사용한다. 출처: <a href="https://github.com/Mapika/decider/blob/45024082b7d4bb667bf9140b7a7c073d3b483f6b/decider/model.py" target="_blank" rel="noopener">model.py</a> slot_logits, <a href="https://github.com/Mapika/decider/blob/45024082b7d4bb667bf9140b7a7c073d3b483f6b/decider/prompt.py" target="_blank" rel="noopener">prompt.py</a> build, 2B 모델 카드.</p>
+  </div>
+</section>
+
+<!-- 3c -->
+<section class="slide" data-title="타입별 readout">
+  <div class="slide-inner">
+    <div class="eyebrow">1.11.1 · 1.11.5 · 구조 <span class="tag laya">Laya</span><span class="tag decider">decider</span></div>
+    <h2>같은 세 타입, 확률을 읽는 단위가 다르다</h2>
+    <div class="types">
+      <div class="th"></div><div class="th">Laya · 한 시퀀스에 후보 전부</div><div class="th">decider · 글자 slot</div>
+
+      <div class="rh">Choice<span>여러 후보 중 하나</span></div>
+      <div class="cell l">
+        <div class="tokens"><span class="tok mk-l">[MASK]</span><span class="tok">결제팀</span><span class="tok mk-l">[MASK]</span><span class="tok">배송팀</span><span class="tok mk-l">[MASK]</span><span class="tok">환불팀</span></div>
+        <div class="out">→ z₁ z₂ z₃ → softmax → q (K개)</div>
       </div>
-      <div class="panel decider stack">
-        <h3>decider · decoder answer slot</h3>
-        <div class="pipe">
-          <div class="node"><b>입력</b> state · schema · 선택지 letter · 답 자리
-            <div class="tokens"><span class="tok">state…</span><span class="tok">A) 결제팀</span><span class="tok">B) 배송팀</span><span class="tok">C) 환불팀</span><span class="tok">Answer:</span><span class="tok mk-d">▢ slot</span></div></div>
-          <div class="arrow">▼</div>
-          <div class="node"><b>Qwen3.5 (causal)</b> · prefill only, 학습 대상</div>
-          <div class="arrow">▼ answer slot hidden state</div>
-          <div class="node hl-d"><b>LM head의 letter 행만 읽기</b> · z = [z<sub>A</sub>, z<sub>B</sub>, z<sub>C</sub>]</div>
-          <div class="arrow">▼</div>
-          <div class="node"><b>p = softmax(z / T)</b> · v10 served T = 1.30</div>
+      <div class="cell d">
+        <div class="tokens"><span class="tok">(A) 결제팀</span><span class="tok">(B) 배송팀</span><span class="tok">(C) 환불팀</span><span class="tok">Answer:</span><span class="tok mk-d">(</span></div>
+        <div class="out">→ lm_head[A,B,C]·h → softmax → p (K개)</div>
+      </div>
+
+      <div class="rh">Noul<span>명제가 참인가</span></div>
+      <div class="cell l">
+        <div class="tokens"><span class="tok mk-l">[MASK]</span><span class="tok">false: no, the statement does not hold</span><span class="tok mk-l">[MASK]</span><span class="tok">true: yes, the statement holds</span></div>
+        <div class="out">→ q = [P(false), P(true)] · noul = P(true)</div>
+      </div>
+      <div class="cell d">
+        <div class="tokens"><span class="tok">(A) no</span><span class="tok">(B) yes</span><span class="tok">Answer:</span><span class="tok mk-d">(</span></div>
+        <div class="out">→ 두 글자 분포 · noul = P(yes)</div>
+      </div>
+
+      <div class="rh">Score<span>순서형 level</span></div>
+      <div class="cell l">
+        <div class="tokens"><span class="tok mk-l">[MASK]</span><span class="tok">level 0: calm</span><span class="tok mk-l">[MASK]</span><span class="tok">level 1: frustrated</span><span class="tok mk-l">[MASK]</span><span class="tok">level 2: very frustrated</span></div>
+        <div class="out">→ 세 level을 한 번에 비교 (listwise) → q = [0.08, 0.67, 0.25]</div>
+        <div class="small muted">학습 reward에 RPS가 붙어 먼 level의 오류를 더 벌한다.</div>
+      </div>
+      <div class="cell d">
+        <div class="iso">
+          <div><span class="tok">row 1 · “calm”에 해당?</span><span class="tok">(A) no (B) yes</span><span class="tok mk-d">(</span><span class="out">→ r₁ = 0.10</span></div>
+          <div><span class="tok">row 2 · “frustrated”에 해당?</span><span class="tok">(A) no (B) yes</span><span class="tok mk-d">(</span><span class="out">→ r₂ = 0.85</span></div>
+          <div><span class="tok">row 3 · “very frustrated”에 해당?</span><span class="tok">(A) no (B) yes</span><span class="tok mk-d">(</span><span class="out">→ r₃ = 0.40</span></div>
         </div>
+        <div class="out">→ p = r / Σr = [0.07, 0.63, 0.30] · fit_mass = Σr = 1.35</div>
+        <div class="small muted">isolated: level마다 별도 row에서 번호·이웃 level 없이 판단한다. fit_mass가 1에 가까우면 정확히 한 level만 맞는다는 뜻이다. 행 문구는 개략이다.</div>
       </div>
     </div>
-    <p class="small muted">Laya는 cross-encoder식 후보 점수(1.5절 C 계열), decider는 answer-token readout(1.4절 B 계열)이다. Score 타입은 decider에서 다른 경로(isolated-levels)를 쓴다. 뒤에서 다룬다.</p>
+    <div class="note">Score에서 차이가 가장 크다. Laya는 level끼리 한 softmax에서 경쟁시키고, decider는 level마다 yes/no를 따로 묻고 합친다. 그래서 decider의 temperature는 각 level row의 [no, yes]에 먼저 걸린다. 1.11.5의 “단순 5-way softmax와 같은 보정이 아니다”가 여기서 나온다.</div>
   </div>
 </section>
 
@@ -659,7 +738,7 @@ svg .lbl-strong { fill: var(--ink); font-weight: 600; }
 <nav class="navbar" aria-label="슬라이드 이동">
   <button id="prev" aria-label="이전 슬라이드">←</button>
   <button id="next" aria-label="다음 슬라이드">→</button>
-  <span class="count" id="count">1 / 16</span>
+  <span class="count" id="count">1 / 18</span>
   <div class="progress"><i id="bar"></i></div>
   <select id="jump" aria-label="슬라이드 선택"></select>
 </nav>
@@ -1090,6 +1169,221 @@ function toggle(btn, fn, ms) {
     h.addEventListener("mousemove", e => showTip(host, tip, e, `${n}<br>Test ECE ${v.toFixed(4)}`)); h.addEventListener("mouseleave", () => { tip.hidden = true; });
   });
 })();
+
+/* ---------- architecture diagrams (slides 4-6) ---------- */
+function estW(s, fs = 12) { let w = 0; for (const ch of s) w += ch.charCodeAt(0) > 255 ? fs : fs * 0.6; return w; }
+function dgDefs(svg, id) { const defs = S("defs", {}, svg); const m = S("marker", { id, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse" }, defs); S("path", { d: "M0 0L10 5L0 10z", class: "f-ar" }, m); }
+function T(g, x, y, text, cls, anchor) { return S("text", { x, y, class: cls || "t-sub", "text-anchor": anchor || "start", text }, g); }
+function AR(g, pts, id, dashed) { return S("path", { d: "M" + pts.map(p => p.join(" ")).join(" L"), class: "ar" + (dashed ? " ar-dash" : ""), "marker-end": `url(#${id})` }, g); }
+function BOX(g, x, y, w, h, title, sub, cls) { S("rect", { x, y, width: w, height: h, rx: 8, class: cls || "box" }, g); if (title) T(g, x + 14, y + 21, title, "t-title"); if (sub) T(g, x + 14, y + 39, sub, "t-sub"); }
+function CHIPS(g, x, y, toks) {
+  const out = [];
+  for (const tk of toks) { const w = estW(tk.t) + 16; S("rect", { x, y, width: w, height: 26, rx: 5, class: tk.cls || "chip" }, g); T(g, x + w / 2, y + 17.5, tk.t, tk.tcls || "t-chip", "middle"); out.push({ x, w, cx: x + w / 2 }); x += w + 6; }
+  return out;
+}
+function BRACE(g, x1, x2, y, label) { S("path", { d: `M${x1} ${y} V${y + 6} H${x2} V${y}`, class: "brace" }, g); T(g, (x1 + x2) / 2, y + 21, label, "t-sub", "middle"); }
+function OPLUS(g, cx, cy) { S("circle", { cx, cy, r: 10, class: "box" }, g); S("path", { d: `M${cx - 5} ${cy} H${cx + 5} M${cx} ${cy - 5} V${cy + 5}`, class: "ar" }, g); }
+function VBAR(g, cx, y, h, cls) { S("rect", { x: cx - 7, y, width: 14, height: h, rx: 3, class: cls }, g); }
+function makeStager(root, svgHost, build, caps) {
+  const svg = build(svgHost);
+  const n = caps.length - 1;
+  let st = 0;
+  const cap = $("[data-dg-cap]", root), cnt = $("[data-dg-count]", root);
+  function show() {
+    root.classList.toggle("focus", st > 0);
+    $$("[data-stage]", svg).forEach(g => g.classList.toggle("on", +g.dataset.stage === st));
+    cap.innerHTML = (st ? `<b>${st}/${n}</b>` : "<b>전체</b>") + caps[st];
+    cnt.textContent = st ? `단계 ${st} / ${n}` : "전체";
+  }
+  $("[data-dg-next]", root).addEventListener("click", () => { st = st >= n ? 0 : st + 1; show(); });
+  $("[data-dg-prev]", root).addEventListener("click", () => { st = st <= 0 ? n : st - 1; show(); });
+  $("[data-dg-all]", root).addEventListener("click", () => { st = 0; show(); });
+  show();
+}
+
+function buildLaya(host) {
+  host.innerHTML = "";
+  const W = 1100, H = 580, A = "arLaya";
+  const svg = S("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Laya 구조: 옵션마다 [MASK]를 붙인 시퀀스를 양방향 encoder와 2층 head에 통과시키고, [MASK] 위치 벡터를 공유 scorer로 점수화해 softmax한다" }, host);
+  dgDefs(svg, A);
+  const G = n => S("g", { "data-stage": n }, svg);
+  // 1 input
+  let g = G(1);
+  T(g, 24, 24, "① 입력 시퀀스", "t-title");
+  T(g, 132, 24, "[CLS] 타입·지시문 [SEP] [MASK] 옵션 … [SEP] state [SEP]", "t-mono");
+  const L = { cls: "chip-l", tcls: "t-on" };
+  const P = CHIPS(g, 24, 36, [{ t: "[CLS]" }, { t: "choice question: 담당 팀은?" }, { t: "[SEP]" }, { t: "[MASK]", ...L }, { t: "결제팀" }, { t: "[MASK]", ...L }, { t: "배송팀" }, { t: "[MASK]", ...L }, { t: "환불팀" }, { t: "[SEP]" }, { t: "결제는 됐는데 주문 내역에 안 보여요" }, { t: "[SEP]" }]);
+  const M = [P[3].cx, P[5].cx, P[7].cx];
+  BRACE(g, P[0].x, P[9].x + P[9].w, 68, "질문 head · ≤ 256 tok, 옵션 하나당 ≤ 48 tok");
+  BRACE(g, P[10].x, P[11].x + P[11].w, 68, "state · 전체 ≤ 1024 tok");
+  // 2 encoder
+  g = G(2);
+  AR(g, [[550, 96], [550, 106]], A);
+  BOX(g, 24, 108, 1052, 48, "② ModernBERT / mmBERT encoder", "양방향 self-attention · 각 [MASK]는 지시문, 다른 옵션, state 전체를 함께 본다", "box");
+  T(g, 1062, 129, "h: [B, T, d]", "t-mono", "end");
+  P.forEach((p, i) => S("rect", { x: p.cx - 5, y: 162, width: 10, height: 10, rx: 2, class: [3, 5, 7].includes(i) ? "f-laya" : "vec" }, g));
+  // 3 type emb
+  g = G(3);
+  AR(g, [[700, 174], [700, 184]], A);
+  OPLUS(g, 700, 196);
+  BOX(g, 760, 182, 316, 28, null, null, "box");
+  T(g, 774, 201, "③ + type_emb(Choice/Score/Noul) · 모든 위치에", "t-sub");
+  AR(g, [[758, 196], [712, 196]], A);
+  AR(g, [[700, 207], [700, 220]], A);
+  // 4 head
+  g = G(4);
+  BOX(g, 24, 222, 1052, 48, "④ decision head · TransformerEncoder 2층", "pre-norm · heads = d/64 · FFN 4d · 이것도 양방향, 모든 위치를 다시 갱신", "box-l");
+  P.forEach((p, i) => S("rect", { x: p.cx - 5, y: 276, width: 10, height: 10, rx: 2, class: [3, 5, 7].includes(i) ? "f-laya" : "vec" }, g));
+  // 5 gather
+  g = G(5);
+  M.forEach((cx, k) => { AR(g, [[cx, 288], [cx, 302]], A); VBAR(g, cx, 304, 40, "f-laya"); T(g, cx + 12, 328, `h${"₁₂₃"[k]}`, "t-mono-strong"); });
+  T(g, 700, 318, "⑤ [MASK] 위치만 gather", "t-title");
+  T(g, 700, 336, "m: [B, K, d] · 나머지 위치는 버린다", "t-sub");
+  // 6 scorer
+  g = G(6);
+  M.forEach(cx => AR(g, [[cx, 346], [cx, 372]], A));
+  BOX(g, 300, 374, 400, 50, null, null, "box-l");
+  T(g, 314, 394, "⑥ scorer · 모든 후보가 같은 가중치", "t-title");
+  T(g, 314, 413, "LayerNorm → Linear(d,d) → GELU → Linear(d,1)", "t-mono");
+  const Z = [1.2, 0.4, -0.7];
+  M.forEach((cx, k) => { AR(g, [[cx, 426], [cx, 438]], A); S("rect", { x: cx - 34, y: 440, width: 68, height: 22, rx: 5, class: "chip" }, g); T(g, cx, 455, `z${"₁₂₃"[k]} = ${fmt(Z[k], 1)}`, "t-mono-strong", "middle"); });
+  // 7 softmax
+  g = G(7);
+  const q = softmax(Z), tt = [0.6, 0.3, 0.1], base = 566, sc = 90;
+  M.forEach((cx, k) => {
+    AR(g, [[cx, 464], [cx, 474]], A);
+    const h = q[k] * sc; S("rect", { x: cx - 16, y: base - h, width: 32, height: h, rx: 3, class: "f-laya" }, g);
+    S("line", { x1: cx - 22, x2: cx + 22, y1: base - tt[k] * sc, y2: base - tt[k] * sc, class: "ln s-target", "stroke-width": 2.5, "stroke-dasharray": "5 3" }, g);
+    T(g, cx + 26, base - h + 4, q[k].toFixed(2), "t-mono-strong");
+  });
+  S("line", { x1: 330, x2: 660, y1: base, y2: base, class: "axis" }, g);
+  T(g, 24, 512, "⑦ q = softmax(z / T_type)", "t-title");
+  T(g, 24, 530, "T: [Choice, Score, Noul] buffer, 학습 뒤 fit", "t-sub");
+  T(g, 24, 548, "점선 = teacher t [0.6, 0.3, 0.1]", "t-sub");
+  // 8 act head
+  g = G(8);
+  AR(g, [[P[0].cx, 288], [P[0].cx, 374]], A, true);
+  T(g, P[0].cx + 8, 320, "h_CLS (head 출력)", "t-mono");
+  BOX(g, 24, 376, 256, 86, null, null, "box");
+  T(g, 38, 396, "act_head (보조)", "t-title");
+  T(g, 38, 415, "[h_CLS ; top1, top1−top2,", "t-mono");
+  T(g, 38, 432, " entropy, K/255] → MLP", "t-mono");
+  T(g, 38, 452, "공개 fine-tuning loss 가중치 0", "t-sub");
+  // 9 training
+  g = G(9);
+  BOX(g, 760, 360, 316, 190, "학습 신호 · MPS fine-tuning", null, "box");
+  ["loss_ce = −Σ t·log q", "loss_rl: z + ε (4개) → reward → A", "loss = loss_rl + loss_ce", "AdamW · encoder 2.5e-5", "        head·scorer 1e-4", "grad clip 1.0 · cosine"].forEach((s, i) => T(g, 774, 404 + i * 22, s, "t-mono"));
+  AR(g, [[680, 520], [756, 470]], A);
+  T(g, 688, 540, "q vs t", "t-mono");
+  AR(g, [[1060, 356], [1060, 290]], A, true);
+  T(g, 1052, 320, "backprop →", "t-mono", "end");
+  T(g, 1052, 336, "head · encoder", "t-mono", "end");
+  return svg;
+}
+
+function buildDec(host) {
+  host.innerHTML = "";
+  const W = 1100, H = 600, A = "arDec";
+  const svg = S("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "decider 구조: 선택지를 글자로 렌더링한 프롬프트를 causal LM에 한 번 통과시키고, 마지막 slot 위치의 hidden state를 LM head의 글자 행과 내적해 softmax한다" }, host);
+  dgDefs(svg, A);
+  const G = n => S("g", { "data-stage": n }, svg);
+  const D = { cls: "chip-d", tcls: "t-on" };
+  // 1 prompt
+  let g = G(1);
+  T(g, 24, 24, "① 프롬프트 (state-first, 기본)", "t-title");
+  T(g, 268, 24, "선택지 순서는 빌드 때 섞고 결과를 되돌린다", "t-sub");
+  const P = CHIPS(g, 24, 36, [{ t: "Context:" }, { t: "결제는 됐는데 주문 내역에 안 보여요" }, { t: "Question:" }, { t: "담당 팀은?" }, { t: "Options:" }, { t: "(A) 결제팀" }, { t: "(B) 배송팀" }, { t: "(C) 환불팀" }, { t: "Answer:" }, { t: "(", ...D }]);
+  const SX = P[9].cx;
+  BRACE(g, P[2].x, P[7].x + P[7].w, 68, "질문 블록 · 선택지는 글자 A–J (11개 이상이면 AA, AB … 최대 255)");
+  T(g, SX + 22, 54, "← slot", "t-mono-strong");
+  // 2 decoder
+  g = G(2);
+  AR(g, [[550, 96], [550, 106]], A);
+  BOX(g, 24, 108, 1052, 48, "② Qwen3.5-2B-Base · causal decoder (prefill 한 번)", "각 위치는 자기 왼쪽만 본다 · attention + linear-attention(delta-net) 층 · 토큰 생성 없음", "box");
+  // causal mask icon
+  const cx0 = 1010, cy0 = 113, cs = 7;
+  for (let i = 0; i < 5; i++) for (let j = 0; j < 5; j++) S("rect", { x: cx0 + j * cs, y: cy0 + i * cs, width: cs - 1, height: cs - 1, class: j <= i ? "f-decider" : "vec" }, g);
+  P.forEach((p, i) => S("rect", { x: p.cx - 5, y: 162, width: 10, height: 10, rx: 2, class: i === 9 ? "f-decider" : "vec" }, g));
+  T(g, 24, 190, "last_hidden_state [B, T, H] · slot 말고는 쓰지 않는다", "t-sub");
+  // 3 slot hidden
+  g = G(3);
+  AR(g, [[SX, 174], [SX, 196]], A);
+  VBAR(g, SX, 198, 56, "f-decider");
+  T(g, SX + 14, 216, "h_slot [H]", "t-mono-strong");
+  T(g, SX + 14, 234, "“(” 다음 토큰을", "t-sub");
+  T(g, SX + 14, 250, "예측하던 벡터", "t-sub");
+  // 4 lm head rows
+  g = G(4);
+  const mx = 610, my = 200, mw = 150, mh = 150;
+  S("rect", { x: mx, y: my, width: mw, height: mh, rx: 4, class: "box" }, g);
+  for (let i = 1; i < 15; i++) S("line", { x1: mx, x2: mx + mw, y1: my + i * 10, y2: my + i * 10, class: "row-line" }, g);
+  const rows = [[4, "A"], [7, "B"], [10, "C"]];
+  rows.forEach(([r, l]) => { S("rect", { x: mx, y: my + r * 10, width: mw, height: 10, class: "f-decider" }, g); T(g, mx - 8, my + r * 10 + 9, `“${l}”`, "t-mono-strong", "end"); });
+  T(g, mx + mw / 2, my - 8, "lm_head.weight [V, H]", "t-mono", "middle");
+  T(g, mx + mw / 2, my + mh + 16, "V 행 중 글자 K개 행만", "t-sub", "middle");
+  AR(g, [[SX - 9, 226], [mx + mw + 4, 226]], A);
+  T(g, (SX + mx + mw) / 2, 218, "W[letters] · h", "t-mono", "middle");
+  const Z = [2.1, 1.3, 0.2];
+  ["A", "B", "C"].forEach((l, k) => { const x = 820 + k * 80; S("rect", { x: x - 34, y: 300, width: 68, height: 22, rx: 5, class: "chip" }, g); T(g, x, 315, `z_${l} = ${Z[k]}`, "t-mono-strong", "middle"); });
+  AR(g, [[mx + mw + 4, my + 100], [782, 311]], A);
+  T(g, 786, 342, "D…J 등 nopts 밖 글자 → −∞", "t-sub");
+  // 5 softmax
+  g = G(5);
+  const p = softmax(Z.map(z => z / 1.3)), base = 520, sc = 110;
+  ["A", "B", "C"].forEach((l, k) => {
+    const x = 820 + k * 80, h = p[k] * sc;
+    S("rect", { x: x - 16, y: base - h, width: 32, height: h, rx: 3, class: "f-decider" }, g);
+    T(g, x, base - h - 6, p[k].toFixed(2), "t-mono-strong", "middle");
+    T(g, x, base + 16, l, "t-mono", "middle");
+  });
+  AR(g, [[900, 350], [900, 392]], A);
+  S("line", { x1: 780, x2: 1020, y1: base, y2: base, class: "axis" }, g);
+  T(g, 780, 552, "⑤ p = softmax(z / T)", "t-title");
+  T(g, 780, 571, "v10: T = 1.30 하나 (RL 중 고정)", "t-sub");
+  T(g, 780, 589, "v11: choice 1.164 · noul 1.624 · score 1.124", "t-sub");
+  // 6 multi-question
+  g = G(6);
+  BOX(g, 24, 214, 540, 120, "⑥ 질문이 여러 개면 slot도 여러 개", null, "box");
+  const P2 = CHIPS(g, 38, 248, [{ t: "Context…" }, { t: "Question 1…" }, { t: "Question 2…" }, { t: "Answer 1:" }, { t: "(", ...D }, { t: "Answer 2:" }, { t: "(", ...D }]);
+  T(g, 38, 298, "한 forward에서 두 slot을 함께 읽는다. 답 글자를 끼워 넣지 않으므로", "t-sub");
+  T(g, 38, 316, "slot 2는 답 1을 못 본다. 기본 API는 질문마다 별도 row (independent=False면 묶음)", "t-sub");
+  // 7 schema-first
+  g = G(7);
+  BOX(g, 24, 352, 540, 104, "⑦ schema-first layout (캐시용 두 번째 배치)", null, "box");
+  CHIPS(g, 38, 386, [{ t: "Question/Options …" }, { t: "Context: state" }, { t: "Answer:" }, { t: "(", ...D }]);
+  T(g, 38, 436, "질문 prefix의 KV·delta-net 상태를 한 번 계산해 모든 state에 재사용", "t-sub");
+  // 8 training
+  g = G(8);
+  BOX(g, 24, 474, 540, 96, "학습 신호는 모두 같은 slot 분포 위에서", null, "box-d");
+  T(g, 38, 516, "지도 단계: slot 분포 vs gold 선택지 · v10 RL: PPO · belief · consistency", "t-sub");
+  T(g, 38, 536, "· retention (384 step, peak lr 1e-6) · v11: attention·MLP에 rank 64", "t-sub");
+  T(g, 38, 556, "LoRA 학습 후 병합 · 새 head 없음 (기존 LM head 행 재사용)", "t-sub");
+  return svg;
+}
+
+makeStager($("#dgLaya"), $("#layaSvg"), buildLaya, [
+  "한 시퀀스를 encoder에 한 번 통과시키고, 후보마다 붙인 [MASK] 위치의 벡터를 같은 scorer로 점수화한다. 후보 수 K는 질문마다 달라도 된다. ‘다음 단계’로 forward를 따라가 보자.",
+  "옵션마다 앞에 [MASK]를 하나 붙인다. MLM 사전학습의 [MASK]를 ‘이 옵션의 요약 자리’로 재활용한다. state는 질문 head 뒤에 붙고, 남은 길이만큼만 들어간다.",
+  "encoder는 양방향이다. 그래서 각 [MASK] 벡터는 자기 옵션뿐 아니라 다른 옵션과 state 전체를 보고 만들어진다(cross-encoder). 출력은 위치마다 d차원 벡터다.",
+  "질문 타입(Choice/Score/Noul)마다 학습된 벡터 하나를 모든 위치에 더한다. 같은 head가 타입별로 다르게 읽게 하는 신호다.",
+  "Laya 고유의 작은 Transformer 2층을 encoder 위에 한 번 더 쌓는다. 이 층도 양방향이고 모든 위치를 다시 갱신한다.",
+  "이제 [MASK] 위치 K개만 꺼낸다. 지시문과 state 위치는 [MASK] 벡터에 정보를 넘긴 뒤 버려진다.",
+  "K개 벡터에 같은 MLP를 적용해 후보당 스칼라 z를 얻는다. 가중치를 공유하므로 후보가 2개든 30개든 같은 head로 처리한다.",
+  "후보 축으로 softmax해 분포 q를 만든다. 추론 때는 type별 temperature T로 나눈다. 점선은 학습 target인 teacher 분포다.",
+  "[CLS] 벡터와 q의 요약 통계(최댓값, 1·2위 차이, 정규화 엔트로피, 후보 수)를 받아 ‘행동할지’를 고르는 보조 head다. q 쪽 통계는 detach된다. 공개 fine-tuning은 이 출력에 0을 곱해 loss에 넣는다.",
+  "q와 teacher t로 CE를, noisy z 4개로 RL 항을 만든다(7–8장). gradient는 scorer → head → type_emb → encoder까지 흐른다. encoder는 작은 lr, 새 층들은 큰 lr이다.",
+]);
+makeStager($("#dgDec"), $("#decSvg"), buildDec, [
+  "프롬프트를 causal LM에 prefill로 한 번 통과시키고, ‘Answer: (’ 다음 위치에서 LM head의 선택지 글자 행만 읽는다. 생성은 하지 않는다. ‘다음 단계’로 따라가 보자.",
+  "선택지를 (A) (B) (C) 글자로 렌더링하고 프롬프트를 ‘Answer: (’로 끝낸다. 그 마지막 토큰이 답을 읽는 slot이다. 선택지 순서는 빌드할 때 섞고(perms) 결과를 원래 순서로 되돌린다.",
+  "decoder는 causal이다. 각 위치는 자기 왼쪽만 본다(아이콘: 하삼각 마스크). 그래서 state·질문·선택지를 모두 본 위치는 맨 끝 slot뿐이다. Laya와 달리 옵션별 벡터가 따로 없다.",
+  "slot 위치의 hidden state h 하나만 꺼낸다. 원래 LM이라면 이 벡터로 ‘(’ 다음 토큰을 예측한다. 즉 “다음 글자가 A, B, C 중 무엇인가”를 묻는 셈이다.",
+  "LM head 가중치에서 글자 토큰 A, B, C의 행만 골라 h와 내적한다. vocab 전체가 아니라 K개 행 위의 분포다. 선택지 수(nopts)를 넘는 글자는 −∞로 막는다. 새 파라미터가 없다.",
+  "z를 T로 나눠 softmax한다. v10은 T = 1.30 하나를 썼고 RL 중에도 고정했다. v11은 type별 map을 쓴다.",
+  "질문이 여러 개면 ‘Answer 1: (’, ‘Answer 2: (’ slot을 한 forward에서 읽는다. 답 글자를 끼워 넣지 않으므로 slot 2는 답 1을 보지 못한다(조건부 독립). 기본 API는 질문마다 별도 row로 돌린다.",
+  "schema-first layout은 질문·선택지를 앞에, state를 뒤에 둔다. 질문 prefix의 상태를 캐시해 state만 바꿔 가며 재사용한다. v10의 consistency 항이 두 layout과 역순 선택지의 분포를 맞춘다.",
+  "지도 학습, v10 RL, v11 LoRA 모두 이 slot 분포 하나에 loss를 건다. 학습과 serving이 같은 readout을 쓰므로 RL에서 바꾼 확률이 그대로 서빙된다.",
+]);
 
 /* ---------- deck navigation ---------- */
 const slides = $$(".slide");
