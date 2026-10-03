@@ -2,6 +2,8 @@
 
 공유 [대화](https://chatgpt.com/share/6ab225ec-e558-83e8-a7ed-7f5445b2e2d2)의 관심사인 **병렬 후보 평가, decision head, 확률 보정**을 따라가는 학습 순서다. 공개 복제 프로젝트는 Jev의 비공개 내부 구현을 증명하지 않는다. 특히 NanoJev는 독립 구현이다.
 
+현재 노트북은 [Jev 소개와 API 실습](../notebooks/jev.ipynb), [Jev-like 방법론과 학습 설계](../notebooks/jevlike_training.ipynb) 두 개다. Jev-like 노트북의 **1.11.1~1.11.7**에는 Laya·decider의 학습 중 확률 목표, 학습 후 temperature fitting, confidence 정의와 로컬 합성 검증을 비교했다.
+
 ## 1. 출력 계약 이해하기
 
 | 리소스 | 확인할 것 | 실습 |
@@ -14,7 +16,7 @@ TypeSafe 문서의 `noul`은 NanoJev 로컬 요청의 `boolean`에 대응하지�
 
 ## 2. NanoJev 입력 → 출력 따라가기
 
-이 저장소의 [입력 출력 추적 노트북](../notebooks/nanojev_input_output.ipynb)은 공개 소스 `76fdfc9`를 기준으로 한다. 첫 부분은 Python 표준 라이브러리만으로 실행된다. 원본 저장소를 찾지 못하면 노트북이 해당 커밋을 임시 디렉터리에 복제하므로 최초 실행에는 네트워크가 필요하다.
+아래는 공개 소스 `76fdfc9`를 기준으로 한 입력·출력 추적 순서다. NanoJev 전용 노트북은 제거했으며, 구조 비교 설명은 Jev-like 노트북의 1.5에서 읽을 수 있다.
 
 1. [샘플 요청](https://github.com/TianyuCodings/NanoJev/blob/76fdfc9ecdca45a9bcef17991a07d3041a87685a/research/toy_inference_example.json): `states → questions → criteria` 구조와 각 질문의 후보 수 세기.
 2. [`prepare_examples`](https://github.com/TianyuCodings/NanoJev/blob/76fdfc9ecdca45a9bcef17991a07d3041a87685a/scripts/predict_toy_decisions.py): 질문마다 candidate path가 어떻게 문자열과 token으로 바뀌는지 확인. Boolean은 **semantic path 하나**만 만든다.
@@ -28,7 +30,7 @@ TypeSafe 문서의 `noul`은 NanoJev 로컬 요청의 `boolean`에 대응하지�
 
 | 리소스 | 실습 | 준비 |
 | --- | --- | --- |
-| [NanoJev README와 quick start](https://github.com/TianyuCodings/NanoJev) · [공개 모델](https://huggingface.co/C-Tianyu/NanoJev) | `unified-games-v1` checkpoint로 샘플 요청을 예측하고 `execution.candidate_paths`, `forward_passes`, `autoregressive_decode_steps` 확인 | 모델 파일, PyTorch/Transformers, CUDA GPU. 노트북의 실제 추론 셀은 준비되지 않으면 건너뜀 |
+| [NanoJev README와 quick start](https://github.com/TianyuCodings/NanoJev) · [공개 모델](https://huggingface.co/C-Tianyu/NanoJev) | `unified-games-v1` checkpoint로 샘플 요청을 예측하고 `execution.candidate_paths`, `forward_passes`, `autoregressive_decode_steps` 확인 | 원본 저장소의 실행 안내, 모델 파일, PyTorch/Transformers, CUDA GPU |
 | [질문 계약 오프라인 테스트](https://github.com/TianyuCodings/NanoJev/blob/76fdfc9ecdca45a9bcef17991a07d3041a87685a/scripts/test_question_contract.py) | ID 이름과 무관한 질문을 바꿔도 기존 path token이 그대로인지 검사 | Python 표준 라이브러리만 필요 |
 | [훈련 파이프라인](https://github.com/TianyuCodings/NanoJev/blob/76fdfc9ecdca45a9bcef17991a07d3041a87685a/research/pipeline_runbook.md) · [RLCD inspired 실험](https://github.com/TianyuCodings/NanoJev/blob/76fdfc9ecdca45a9bcef17991a07d3041a87685a/docs/RLCD_EXPERIMENT.md) | CE, Brier, temperature 변경 전후 NLL/Brier/ECE를 분리해 비교 | 실제 outcome label과 별도 calibration split 필요 |
 
@@ -40,11 +42,11 @@ TypeSafe 문서의 `noul`은 NanoJev 로컬 요청의 `boolean`에 대응하지�
 
 ## 5. Contrastive Language Models
 
-[CLM 학습 노트북](../notebooks/clm_training.ipynb)은 [technical report](https://contrastive-lm.notion.site/)와 [공개 학습 코드](https://github.com/Contrastive-LM/CLM/tree/bb42c6c5bf914fd449bed2f6ca65be80602cb1f7)를 바탕으로 다음을 실행한다.
+[Jev-like 방법론 노트북](../notebooks/jevlike_training.ipynb)의 1.7은 [technical report](https://contrastive-lm.notion.site/)와 [공개 학습 코드](https://github.com/Contrastive-LM/CLM/tree/bb42c6c5bf914fd449bed2f6ca65be80602cb1f7)를 참고해 dual-encoder와 InfoNCE를 설명한다. CLM 전용 실행 노트북은 제거했으며, 공개 recipe에서 확인할 요소는 다음과 같다.
 
 - frozen state/action embedding 위에서 서로 다른 projection head 두 개를 학습
-- 공개 `finetune.py`의 group-masked bidirectional InfoNCE를 직접 import해 실행
-- pre-training → synthetic hard-negative mid-training → 60/40 agentic/replay post-training을 작은 합성 데이터로 관찰
+- 공개 `finetune.py`의 group-masked bidirectional InfoNCE
+- pre-training → synthetic hard-negative mid-training → 60/40 agentic/replay post-training의 단계 구분
 - candidate dot product가 Choice, Noul, Score 확률로 바뀌는 과정 확인
 
 CLM은 2026-09-23 공개된 technical report다. 공개 저자 성능은 독립 재현으로 확인해야 하며, CLM의 구조가 Jev의 실제 내부 구조와 같다는 증거는 없다.
