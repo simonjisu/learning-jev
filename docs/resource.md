@@ -2,7 +2,7 @@
 
 공유 [대화](https://chatgpt.com/share/6ab225ec-e558-83e8-a7ed-7f5445b2e2d2)의 관심사인 **병렬 후보 평가, decision head, 확률 보정**을 따라가는 학습 순서다. 공개 복제 프로젝트는 Jev의 비공개 내부 구현을 증명하지 않는다. 특히 NanoJev는 독립 구현이다.
 
-현재 노트북은 [Jev 소개와 API 실습](../notebooks/jev.ipynb), [Jev-like 방법론과 학습 설계](../notebooks/jevlike_training.ipynb) 두 개다. Jev-like 노트북의 **1.11.1~1.11.7**에는 Laya·decider의 학습 중 확률 목표, 학습 후 temperature fitting, confidence 정의와 로컬 합성 검증을 비교했다.
+현재 노트북은 [Jev 소개와 API 실습](https://github.com/simonjisu/learning-jev/blob/main/notebooks/jev.ipynb), [Jev-like 방법론과 학습 설계](https://github.com/simonjisu/learning-jev/blob/main/notebooks/jevlike_training.ipynb) 두 개다. Jev-like 노트북의 **1.11.1~1.11.7**에는 Laya·decider의 학습 중 확률 목표, 학습 후 temperature fitting, confidence 정의와 로컬 합성 검증을 비교했다.
 
 ## 1. 출력 계약 이해하기
 
@@ -42,7 +42,7 @@ TypeSafe 문서의 `noul`은 NanoJev 로컬 요청의 `boolean`에 대응하지�
 
 ## 5. Contrastive Language Models
 
-[Jev-like 방법론 노트북](../notebooks/jevlike_training.ipynb)의 1.7은 [technical report](https://contrastive-lm.notion.site/)와 [공개 학습 코드](https://github.com/Contrastive-LM/CLM/tree/bb42c6c5bf914fd449bed2f6ca65be80602cb1f7)를 참고해 dual-encoder와 InfoNCE를 설명한다. CLM 전용 실행 노트북은 제거했으며, 공개 recipe에서 확인할 요소는 다음과 같다.
+[Jev-like 방법론 노트북](https://github.com/simonjisu/learning-jev/blob/main/notebooks/jevlike_training.ipynb)의 1.7은 [technical report](https://contrastive-lm.notion.site/)와 [공개 학습 코드](https://github.com/Contrastive-LM/CLM/tree/bb42c6c5bf914fd449bed2f6ca65be80602cb1f7)를 참고해 dual-encoder와 InfoNCE를 설명한다. CLM 전용 실행 노트북은 제거했으며, 공개 recipe에서 확인할 요소는 다음과 같다.
 
 - frozen state/action embedding 위에서 서로 다른 projection head 두 개를 학습
 - 공개 `finetune.py`의 group-masked bidirectional InfoNCE
@@ -53,7 +53,7 @@ CLM은 2026-09-23 공개된 technical report다. 공개 저자 성능은 독립 
 
 ## 6. Primitive별 학습 데이터셋
 
-[Jev-like 학습 노트북](../notebooks/jevlike_training.ipynb)의 데이터 구성은 다음과 같다.
+[Jev-like 학습 노트북](https://github.com/simonjisu/learning-jev/blob/main/notebooks/jevlike_training.ipynb)의 데이터 구성은 다음과 같다.
 
 | Primitive | 데이터셋 | 학습 정답 |
 | --- | --- | --- |

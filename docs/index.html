@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>learning-jev 자료</title>
+<meta name="description" content="Jev-like 의사결정 모델 학습 노트와 발표 자료 모음">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap">
+<style>
+:root {
+  --bg: #f3f5f7; --surface: #ffffff; --ink: #17202b; --ink-2: #44505e; --muted: #727e8c; --line: #d6dce3;
+  --laya: #008a78; --decider: #6248c9;
+  --f-sans: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #111418; --surface: #181c22; --ink: #e7ebf0; --ink-2: #b2bcc8; --muted: #8590a0; --line: #2d343d; --laya: #1f9e89; --decider: #8574ee; color-scheme: dark; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f-sans); line-height: 1.6; }
+main { max-width: 880px; margin-inline: auto; padding: 48px 20px 64px; display: flex; flex-direction: column; gap: 28px; }
+.eyebrow { font-family: var(--f-mono); font-size: .82rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+h1 { margin: 0; font-size: 2.2rem; letter-spacing: -.02em; }
+h2 { margin: 0 0 10px; font-size: 1.1rem; color: var(--ink-2); }
+p { margin: 0; color: var(--ink-2); max-width: 62ch; }
+ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+a.item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 16px; text-decoration: none; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+a.item:hover, a.item:focus-visible { border-color: var(--ink-2); outline: none; }
+a.item b { font-weight: 600; }
+a.item span { grid-column: 1; font-size: .9rem; color: var(--ink-2); }
+a.item em { grid-row: 1 / span 2; grid-column: 2; align-self: center; font-style: normal; font-family: var(--f-mono); font-size: .78rem; color: var(--muted); white-space: nowrap; }
+footer { font-size: .85rem; color: var(--muted); }
+footer a { color: var(--decider); }
+@media (max-width: 520px) { a.item { grid-template-columns: minmax(0, 1fr); } a.item em { grid-row: auto; grid-column: 1; } }
+</style>
+</head>
+<body>
+<main>
+  <div>
+    <div class="eyebrow">learning-jev</div>
+    <h1>Jev-like 학습 자료</h1>
+  </div>
+  <p>Qwen3.5 기반 Jev-like 의사결정 모델을 공부하며 만든 발표 자료와 노트다. 새 자료는 <code>docs/</code> 아래에 두고 이 목록에 한 줄 추가한다.</p>
+
+  <section>
+    <h2>발표 자료</h2>
+    <ul>
+      <li><a class="item" href="slides/calibrated_decision_training.html">
+        <b>Laya · decider 훈련 해부</b>
+        <span>jevlike_training 1.11.1–1.11.7 · calibrated decision 학습을 아키텍처 그림과 브라우저 시뮬레이션으로 설명</span>
+        <em>slides · 18장</em>
+      </a></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>노트</h2>
+    <ul>
+      <li><a class="item" href="resource.html">
+        <b>Jev 실습 리소스</b>
+        <span>출력 계약, NanoJev 입력→출력 추적, 학습 순서</span>
+        <em>md</em>
+      </a></li>
+      <li><a class="item" href="https://github.com/simonjisu/learning-jev/blob/main/notebooks/jevlike_training.ipynb">
+        <b>jevlike_training.ipynb</b>
+        <span>Jev-like 방법론과 학습 설계 노트북 (GitHub)</span>
+        <em>ipynb</em>
+      </a></li>
+      <li><a class="item" href="https://github.com/simonjisu/learning-jev/blob/main/notebooks/jev.ipynb">
+        <b>jev.ipynb</b>
+        <span>Jev 소개와 API 실습 노트북 (GitHub)</span>
+        <em>ipynb</em>
+      </a></li>
+    </ul>
+  </section>
+
+  <footer>소스: <a href="https://github.com/simonjisu/learning-jev">github.com/simonjisu/learning-jev</a></footer>
+</main>
+</body>
+</html>
