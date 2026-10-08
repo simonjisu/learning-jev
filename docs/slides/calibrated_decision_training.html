@@ -24,6 +24,8 @@
   --target: #b7791f;
   --laya-soft: #e0f2ee;
   --decider-soft: #ebe7fa;
+  --clef: #c0396b;
+  --clef-soft: #f8e6ed;
   --target-soft: #f6ecda;
   --good: #2e7d32;
   --bad: #b3362c;
@@ -40,14 +42,14 @@
   :root:not([data-theme="light"]) {
     --bg: #111418; --surface: #181c22; --sunk: #1f242b; --ink: #e7ebf0; --ink-2: #b2bcc8; --muted: #8590a0;
     --line: #2d343d; --grid: #242a31; --laya: #1f9e89; --decider: #8574ee; --target: #bd8428;
-    --laya-soft: #13302b; --decider-soft: #231f3c; --target-soft: #322710; --good: #57b25c; --bad: #e0675d;
+    --laya-soft: #13302b; --decider-soft: #231f3c; --clef: #d4507f; --clef-soft: #36182a; --target-soft: #322710; --good: #57b25c; --bad: #e0675d;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #111418; --surface: #181c22; --sunk: #1f242b; --ink: #e7ebf0; --ink-2: #b2bcc8; --muted: #8590a0;
   --line: #2d343d; --grid: #242a31; --laya: #1f9e89; --decider: #8574ee; --target: #bd8428;
-  --laya-soft: #13302b; --decider-soft: #231f3c; --target-soft: #322710; --good: #57b25c; --bad: #e0675d;
+  --laya-soft: #13302b; --decider-soft: #231f3c; --clef: #d4507f; --clef-soft: #36182a; --target-soft: #322710; --good: #57b25c; --bad: #e0675d;
   color-scheme: dark;
 }
 html, body { height: 100%; }
@@ -156,6 +158,8 @@ svg .lbl-strong { fill: var(--ink); font-weight: 600; }
 .pipe .node b { font-weight: 600; }
 .pipe .node.hl-l { border-color: var(--laya); background: var(--laya-soft); }
 .pipe .node.hl-d { border-color: var(--decider); background: var(--decider-soft); }
+.pipe .node { overflow-wrap: anywhere; }
+.pipe .node.hl-c { border-color: var(--clef); background: var(--clef-soft); }
 .pipe .arrow { text-align: center; color: var(--muted); font-size: .8rem; line-height: 1; }
 .tokens { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
 .tok { font-family: var(--f-mono); font-size: .75rem; padding: 1px 6px; border-radius: 4px; background: var(--sunk); color: var(--ink-2); }
@@ -196,6 +200,18 @@ svg .lbl-strong { fill: var(--ink); font-weight: 600; }
 .vs { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
 @media (max-width: 560px) { .vs { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: reduce) { .navbar .progress i { transition: none; } }
+/* Unsloth / Clef (third method; never shares a chart with Laya/decider, always labeled) */
+.tag.clef { background: var(--clef-soft); color: var(--ink); box-shadow: inset 3px 0 0 var(--clef); }
+.panel.clef { border-top: 3px solid var(--clef); }
+th.clef-h { box-shadow: inset 0 -3px 0 var(--clef); }
+.tok.mk-c { background: var(--clef); color: var(--surface); }
+svg .f-clef { fill: var(--clef); } svg .s-clef { stroke: var(--clef); }
+svg .f-clef-soft { fill: var(--clef-soft); stroke: var(--clef); stroke-width: 1.2; }
+svg .chip-c { fill: var(--clef); }
+svg .chip-cs { fill: var(--clef-soft); stroke: var(--clef); }
+svg .box-c { fill: var(--clef-soft); stroke: var(--clef); stroke-width: 1.5; }
+.code { font-family: var(--f-mono); font-size: .8rem; background: var(--sunk); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre; line-height: 1.6; margin: 0; }
+.code .k { color: var(--clef); font-weight: 600; }
 /* architecture diagrams */
 .dg { display: flex; flex-direction: column; gap: 10px; }
 .dg-scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px; }
@@ -247,13 +263,14 @@ svg .row-line { stroke: var(--line); stroke-width: 1; }
 <!-- 0 -->
 <section class="slide" data-title="표지">
   <div class="slide-inner title-slide">
-    <div class="eyebrow">jevlike_training.ipynb · 1.11.1 – 1.11.7</div>
+    <div class="eyebrow">jevlike_training.ipynb · 1.11.1 – 1.11.7 · 부록 Unsloth</div>
     <h1>확률을 정직하게 만드는<br>두 가지 학습 루프</h1>
-    <p class="lead">Laya와 decider-2B v10은 둘 다 “한 번의 forward로 후보 확률을 읽는” 의사결정 모델을 calibration 쪽으로 학습한다. 무엇을 target으로 삼고, 어떤 RL 업데이트를 쓰고, 학습 뒤 무엇을 보정하는지 훈련 루프를 직접 돌려 보며 비교한다.</p>
+    <p class="lead">Laya와 decider-2B v10은 둘 다 “한 번의 forward로 후보 확률을 읽는” 의사결정 모델을 calibration 쪽으로 학습한다. 무엇을 target으로 삼고, 어떤 RL 업데이트를 쓰고, 학습 뒤 무엇을 보정하는지 훈련 루프를 직접 돌려 보며 비교한다. 부록에서는 같은 일을 RL 없이 해내는 Unsloth의 Clef식 레시피를 함께 본다.</p>
     <div class="row">
       <span class="tag laya">Laya · fa9a2a7</span>
       <span class="tag decider">decider · 4502408</span>
-      <span class="tag both">분석일 2026-10-03</span>
+      <span class="tag clef">Unsloth · PR #12772</span>
+      <span class="tag both">분석일 2026-10-03 · 부록 2026-10-08</span>
     </div>
     <div class="agenda" id="agenda"></div>
     <p class="small muted">←/→ 또는 Space로 넘긴다. 시뮬레이션은 모두 브라우저에서 도는 교육용 toy다. 실제 모델 가중치나 원래 training run을 실행한 결과가 아니다. TypeSafe RLCD의 공개 구현으로 간주하지 않는다.</p>
@@ -661,6 +678,102 @@ svg .row-line { stroke: var(--line); stroke-width: 1; }
   </div>
 </section>
 
+<!-- U1 -->
+<section class="slide" data-title="Unsloth · Clef 아키텍처">
+  <div class="slide-inner">
+    <div class="eyebrow">부록 · 2026-10 공개 <span class="tag clef">Unsloth FastDecisionModel · Cloudflare Clef head</span></div>
+    <h2>Unsloth: 평범한 Qwen3.5에 “joint schema head”를 새로 붙인다</h2>
+    <div class="dg" id="dgClef">
+      <div class="dg-bar"><button data-dg-prev>◀ 이전</button><button class="primary" data-dg-next>다음 단계 ▶</button><button data-dg-all>전체 보기</button><span class="count" data-dg-count>전체</span></div>
+      <figure style="margin:0"><div class="dg-scroll" id="clefSvg"></div>
+      <figcaption class="dg-cap" data-dg-cap aria-live="polite"></figcaption></figure>
+    </div>
+    <p class="small muted">decider처럼 causal LM에 prefill 한 번이지만, 한 토큰을 읽는 대신 질문·옵션 <strong>구간 전체</strong>를 풀링하고 작은 attention head(약 수천만 파라미터)가 시퀀스 전체를 다시 훑는다. 예시 수치는 설명용이다. 출처: unslothai/unsloth PR #12772, <code>unsloth/_vendor/clef/joint_schema_model.py</code>(Cloudflare 원본 그대로).</p>
+  </div>
+</section>
+
+<!-- U2 -->
+<section class="slide" data-title="Unsloth · 학습 레시피">
+  <div class="slide-inner">
+    <div class="eyebrow">부록 · 학습 레시피 <span class="tag clef">Unsloth</span></div>
+    <h2>Jev 요청 형식 그대로의 데이터 → LoRA + soft CE → 정답 기준 temperature</h2>
+    <div class="grid2">
+      <div class="stack">
+        <h3>데이터 한 줄 = Jev API 요청 + 정답</h3>
+<pre class="code">{"state": {"message": "결제는 됐는데 주문 내역에 안 보여요"},
+ "questions": {"team": {
+     "type": "choice",
+     "instructions": "어느 팀이 처리해야 하나?",
+     "criteria": {"billing": "결제", "shipping": "배송",
+                  "refund": "환불"}}},
+ "gold": {"team": "billing"}}</pre>
+        <ul class="tight small">
+          <li><code>gold</code>에 라벨 대신 <code>{"probabilities": {...}}</code>를 주면 Laya처럼 soft target으로 학습한다.</li>
+          <li>변환기 13종: banking77 · clinc150 · MNLI · SNLI · WANLI · BoolQ · AG News · SST-5 · MMLU · CommonsenseQA · ARC · prompt injection · xLAM + <code>LocalLLaMA/typed-decisions</code>.</li>
+          <li><strong>스키마 augmentation</strong>: 옵션 id를 <code>A/B/C</code>나 <code>qzk3</code> 같은 코드로 바꾸고, 옵션 샘플링·순서 섞기, 지시문 삭제·바꿔쓰기, 파생 질문 추가(Choice → “이게 답인가?”, Score → “최소 이 level인가?”).</li>
+          <li>평가셋과 n-gram이 겹치는 학습 행은 제거(decontamination).</li>
+        </ul>
+        <div class="note">augmentation의 목적은 head가 라벨 문자열을 외우지 않고 <strong>스키마 설명을 읽고</strong> 고르게 만드는 것이다. 처음 보는 라벨 세트에도 쓰려는 Jev식 API에서 핵심이다.</div>
+      </div>
+      <div class="stack">
+        <h3>파이프라인</h3>
+        <div class="pipe">
+          <div class="node hl-c"><b>FastDecisionModel.from_pretrained</b>(<code>"unsloth/Qwen3.5-0.8B"</code>, <code>decision_head="clef"</code>) · 새 head 크기는 backbone에 맞춤 (hidden ≥ 3072면 width 1024, 아니면 512)</div>
+          <div class="arrow">▼</div>
+          <div class="node"><b>get_peft_model</b>(r=64) · 모든 linear 층(attention, MLP, Gated DeltaNet 투영) + head 전체 학습</div>
+          <div class="arrow">▼</div>
+          <div class="node"><b>build_dataset → split_holdout</b> · 질문 단위 item, holdout은 보정용</div>
+          <div class="arrow">▼</div>
+          <div class="node"><b>DecisionTrainer</b> · soft cross-entropy · backbone lr 1e-4, head lr 3e-4 · 1 epoch · batch 8×2 · 4096 tok · cosine</div>
+          <div class="arrow">▼</div>
+          <div class="node"><b>calibrate</b> · 정답 라벨(hard) NLL로 전체 T를 LBFGS(strong Wolfe) → 그 위에 type별 상대 T</div>
+          <div class="arrow">▼</div>
+          <div class="node"><b>save_pretrained_merged</b> · T를 head 가중치에 녹여 Cloudflare Clef 형식으로 저장</div>
+        </div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>장치</th><th>내용</th></tr></thead>
+          <tbody>
+            <tr><td>loss 옵션</td><td>label smoothing · Brier 항 · Score ordinal 거리 벌점 (기본 꺼짐)</td></tr>
+            <tr><td>RL</td><td>없음</td></tr>
+            <tr><td>보정 target</td><td>soft 분포가 아니라 정답 라벨. soft 기준으로 맞추면 정확도 0.78에 confidence 0.61로 과소신뢰가 났다고 코드 주석에 적혀 있다.</td></tr>
+            <tr><td>보고 ECE</td><td>holdout을 row 단위 2-fold로 나눠 교차 fit한 값. fit 데이터로 자기 평가하지 않는다.</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- U3 -->
+<section class="slide" data-title="Unsloth · 결과와 세 방식 비교">
+  <div class="slide-inner">
+    <div class="eyebrow">부록 · 결과 <span class="tag clef">Unsloth</span><span class="tag laya">Laya</span><span class="tag decider">decider</span></div>
+    <h2>0.8B를 4.3 GB로 학습해 거의 0에서 75% 근처까지</h2>
+    <div class="grid-4-6">
+      <div class="panel clef stack">
+        <h3>held-out 정확도 · 학습 전 head vs LoRA r16</h3>
+        <div class="chart" id="clefBars"></div>
+        <div class="legend"><span><i class="sw box" style="background:var(--muted)"></i>2B · 학습 전 head</span><span><i class="sw box" style="background:var(--clef-soft);outline:1.5px solid var(--clef)"></i>0.8B · 4.3 GB</span><span><i class="sw box" style="background:var(--clef)"></i>2B · 7.8 GB</span></div>
+        <p class="small muted">PR #12772 표: 13개 소스 13,200행, 810 step, 4096 tok, B200. 이후 r64 실행은 holdout 정확도/ECE 0.8B 78% / 3%, 2B 83% / 5%로 보고됐다. 발표 트윗의 “0.8B 20.7% → 74.3%”는 세 벤치마크 합산이다. 이 저장소에서 재현한 값이 아니다.</p>
+      </div>
+      <div class="stack">
+        <div class="tbl-wrap"><table>
+          <thead><tr><th></th><th class="laya-h">Laya</th><th class="decider-h">decider</th><th class="clef-h">Unsloth · Clef</th></tr></thead>
+          <tbody>
+            <tr><td>backbone</td><td>ModernBERT (양방향)</td><td>Qwen3.5 (causal)</td><td>Qwen3.5 (causal)</td></tr>
+            <tr><td>확률을 읽는 곳</td><td>옵션별 [MASK] 한 토큰</td><td>slot 한 토큰 × 글자 행</td><td>질문·옵션 구간 평균 + 전체 attention</td></tr>
+            <tr><td>head</td><td>2층 encoder + scalar MLP</td><td>없음 (LM head 재사용)</td><td>routing 2층 + decoder 4층 + scorer</td></tr>
+            <tr><td>질문 여러 개</td><td>질문마다 따로</td><td>slot끼리 독립</td><td>head에서 질문끼리 attention</td></tr>
+            <tr><td>학습 목표</td><td>teacher soft CE + noisy-logit RL</td><td>SFT → PPO · belief · consistency · retention</td><td>soft CE (+ 선택: smoothing · Brier · ordinal)</td></tr>
+            <tr><td>보정</td><td>teacher 분포 NLL, type별 T</td><td>정답 NLL, type별 T</td><td>정답 NLL, 전체 T × type별 T, head에 fold</td></tr>
+          </tbody>
+        </table></div>
+        <div class="note">세 방식 중 RL이 없는 것은 Unsloth뿐이다. 대신 데이터 변환·augmentation·보정·저장이 한 API에 묶여 있어 <strong>1.11.7의 2–3단계(baseline + 보정)를 가장 빨리 세울 수 있는 도구</strong>다. Laya식 RL이나 decider식 actor/belief는 그 위에 따로 얹어 비교해야 한다.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- 13 -->
 <section class="slide" data-title="확인한 범위">
   <div class="slide-inner">
@@ -702,6 +815,7 @@ svg .row-line { stroke: var(--line); stroke-width: 1; }
       <div class="panel laya"><h3>Mac에서 메커니즘 구현</h3><p class="small">Laya의 공개 MPS recipe가 출발점으로 구체적이다.</p></div>
       <div class="panel decider"><h3>실제 outcome 기반 설계</h3><p class="small">decider v10의 actor/belief 분리가 더 직접적인 참고다. 둘의 우열은 같은 데이터·평가로 비교하기 전에는 정하지 않는다.</p></div>
     </div>
+    <div class="panel clef"><h3>2–3단계를 빠르게: Unsloth</h3><p class="small">Qwen3.5-0.8B를 4–5 GB VRAM에서 LoRA로 학습하고 holdout 보정까지 한 API로 끝난다. 같은 split과 test로 baseline을 세운 뒤, 4–5단계 RL 실험의 비교 기준으로 쓴다.</p></div>
   </div>
 </section>
 
@@ -726,6 +840,13 @@ svg .row-line { stroke: var(--line); stroke-width: 1; }
         <li><a href="https://github.com/Mapika/decider/blob/45024082b7d4bb667bf9140b7a7c073d3b483f6b/MODEL_CARD.md" target="_blank" rel="noopener">2B model card</a> · <a href="https://github.com/Mapika/decider/blob/45024082b7d4bb667bf9140b7a7c073d3b483f6b/MODEL_CARD_4B.md" target="_blank" rel="noopener">4B model card</a></li>
       </ul></div>
     </div>
+    <div class="panel clef stack"><h3>Unsloth · 2026-10-08 main 기준</h3><ul class="tight small">
+      <li><a href="https://unsloth.ai/docs/basics/train-your-own-decision-model-with-unsloth" target="_blank" rel="noopener">Train your own Decision Model with Unsloth</a> · 공식 문서</li>
+      <li><a href="https://github.com/unslothai/unsloth/pull/12772" target="_blank" rel="noopener">PR #12772 · plain LM → decision model</a> · 결과 표, 사용법</li>
+      <li><a href="https://github.com/unslothai/unsloth/blob/main/unsloth/_vendor/clef/joint_schema_model.py" target="_blank" rel="noopener">joint_schema_model.py</a> · Cloudflare Clef head (원본 그대로)</li>
+      <li><a href="https://github.com/unslothai/unsloth/blob/main/unsloth/models/decision.py" target="_blank" rel="noopener">decision.py</a> · loss, DecisionTrainer, calibrate · <a href="https://github.com/unslothai/unsloth/blob/main/unsloth/models/decision_datasets.py" target="_blank" rel="noopener">decision_datasets.py</a> · 변환기, augmentation</li>
+      <li><a href="https://github.com/unslothai/unsloth/blob/main/scripts/train_decision_from_lm.py" target="_blank" rel="noopener">train_decision_from_lm.py</a> · 기본 하이퍼파라미터</li>
+    </ul></div>
     <div class="panel stack"><h3>관련 연구 (1.11)</h3><ul class="tight small">
       <li><a href="https://typesafe.ai/blog/introducing-system-one-models-and-jev" target="_blank" rel="noopener">TypeSafe · System One models and Jev</a> · RLCD 소개. 공개 자료로 reward·optimizer 특정 불가.</li>
       <li><a href="https://arxiv.org/abs/2507.16806v1" target="_blank" rel="noopener">RLCR · Beyond Binary Rewards (2025-07)</a> · correctness + Brier reward.</li>
@@ -738,7 +859,7 @@ svg .row-line { stroke: var(--line); stroke-width: 1; }
 <nav class="navbar" aria-label="슬라이드 이동">
   <button id="prev" aria-label="이전 슬라이드">←</button>
   <button id="next" aria-label="다음 슬라이드">→</button>
-  <span class="count" id="count">1 / 18</span>
+  <span class="count" id="count">1 / 21</span>
   <div class="progress"><i id="bar"></i></div>
   <select id="jump" aria-label="슬라이드 선택"></select>
 </nav>
@@ -1384,6 +1505,119 @@ makeStager($("#dgDec"), $("#decSvg"), buildDec, [
   "schema-first layout은 질문·선택지를 앞에, state를 뒤에 둔다. 질문 prefix의 상태를 캐시해 state만 바꿔 가며 재사용한다. v10의 consistency 항이 두 layout과 역순 선택지의 분포를 맞춘다.",
   "지도 학습, v10 RL, v11 LoRA 모두 이 slot 분포 하나에 loss를 건다. 학습과 serving이 같은 readout을 쓰므로 RL에서 바꾼 확률이 그대로 서빙된다.",
 ]);
+
+/* ---------- Unsloth / Clef diagram ---------- */
+function buildClef(host) {
+  host.innerHTML = "";
+  const W = 1100, H = 600, A = "arClef";
+  const svg = S("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Clef 구조: 질문과 옵션을 스키마로 렌더링한 프롬프트를 Qwen3.5에 한 번 통과시키고, 질문·옵션 구간을 평균해 만든 벡터를 evidence routing과 field decoder로 시퀀스 전체에 다시 attention한 뒤 옵션별 logit을 낸다" }, host);
+  dgDefs(svg, A);
+  const G = n => S("g", { "data-stage": n }, svg);
+  const C = { cls: "chip-c", tcls: "t-on" }, CS = { cls: "chip-cs" };
+  // 1 prompt
+  let g = G(1);
+  T(g, 24, 24, "① 프롬프트 · state 뒤에 스키마", "t-title");
+  T(g, 262, 24, "system: “Read the complete state and schema…” 로 시작, 질문이 여럿이면 FIELD 2, 3 …", "t-sub");
+  const P = CHIPS(g, 24, 36, [{ t: "STATE:" }, { t: "결제됐는데 주문내역 없음" }, { t: "FIELD 1 choice" }, { t: "담당 팀은?", ...CS }, { t: "OPT billing: 결제", ...C }, { t: "OPT shipping: 배송", ...C }, { t: "OPT refund: 환불", ...C }, { t: "DECISIONS:" }]);
+  const QX = P[3].cx, OX = [P[4].cx, P[5].cx, P[6].cx], GX = P[7].cx;
+  BRACE(g, P[3].x, P[3].x + P[3].w, 68, "질문 구간");
+  BRACE(g, P[4].x, P[6].x + P[6].w, 68, "옵션 구간 ×3 · {\"option_id\", \"description\"}");
+  // 2 backbone
+  g = G(2);
+  AR(g, [[550, 96], [550, 106]], A);
+  BOX(g, 24, 108, 1052, 48, "② Qwen3.5 (causal) · prefill 한 번", "LoRA r64: attention · MLP · Gated DeltaNet 투영 · 생성 없음 · 마지막 hidden state 전체를 head로", "box");
+  P.forEach((p, i) => S("rect", { x: p.cx - 5, y: 162, width: 10, height: 10, rx: 2, class: i === 3 ? "f-clef-soft" : (i >= 4 && i <= 6) || i === 7 ? "f-clef" : "vec" }, g));
+  // 3 pooling
+  g = G(3);
+  AR(g, [[QX, 174], [QX, 190]], A);
+  VBAR(g, QX, 192, 46, "f-clef-soft");
+  T(g, QX - 12, 220, "q", "t-mono-strong", "end");
+  OX.forEach((x, k) => {
+    AR(g, [[x - 9, 174], [x - 9, 190]], A);
+    VBAR(g, x - 9, 192, 46, "f-clef");
+    VBAR(g, x + 9, 192, 46, "f-clef-soft");
+    T(g, x, 254, `c${"₁₂₃"[k]} ℓ${"₁₂₃"[k]}`, "t-mono", "middle");
+  });
+  AR(g, [[GX, 174], [GX, 190]], A);
+  VBAR(g, GX, 192, 46, "f-clef");
+  T(g, GX + 12, 210, "g", "t-mono-strong");
+  T(g, GX + 12, 226, "마지막 토큰", "t-sub");
+  BOX(g, 24, 190, 220, 50, null, null, "box");
+  T(g, 38, 210, "memory M", "t-title");
+  T(g, 38, 228, "모든 위치를 width로 투영", "t-sub");
+  AR(g, [[134, 174], [134, 188]], A);
+  // 4 routing
+  g = G(4);
+  OX.forEach(x => AR(g, [[x, 262], [x, 276]], A));
+  BOX(g, OX[0] - 66, 278, OX[2] - OX[0] + 132, 46, null, null, "box-c");
+  T(g, OX[0] - 52, 297, "④ evidence routing × 2", "t-title");
+  T(g, OX[0] - 52, 315, "옵션 query = W·c + W·ℓ + W·q → memory에 cross-attention", "t-sub");
+  AR(g, [[244, 215], [300, 215], [300, 300], [OX[0] - 70, 300]], A, true);
+  OX.forEach(x => { AR(g, [[x, 326], [x, 338]], A); S("rect", { x: x - 6, y: 340, width: 12, height: 12, rx: 2, class: "f-clef" }, g); T(g, x + 10, 351, "o", "t-mono"); });
+  // 5 field decoder
+  g = G(5);
+  AR(g, [[QX, 240], [QX, 268], [404, 268], [404, 374]], A);
+  BOX(g, 24, 376, 420, 62, null, null, "box-c");
+  T(g, 38, 396, "⑤ field decoder × 4 (질문마다 벡터 하나)", "t-title");
+  T(g, 38, 414, "입력 W·q + 옵션 요약 + W·g + type_emb", "t-sub");
+  T(g, 38, 431, "질문끼리 self-attention + memory cross-attention", "t-sub");
+  AR(g, [[134, 242], [134, 372]], A, true);
+  AR(g, [[OX[0] - 20, 352], [OX[0] - 20, 364], [448, 364], [448, 380]], A);
+  T(g, OX[0] - 24, 378, "옵션 요약", "t-sub", "end");
+  T(g, GX, 262, "g → field · prior", "t-sub", "middle");
+  // 6 scorer
+  g = G(6);
+  BOX(g, OX[0] - 66, 454, OX[2] - OX[0] + 132, 46, null, null, "box-c");
+  T(g, OX[0] - 52, 473, "⑥ 옵션 점수 z_k", "t-title");
+  T(g, OX[0] - 52, 491, "prior·cos(ℓ_k, q+g) + σ(gate)·[cos(f, o_k) + MLP(f, o_k)]", "t-mono");
+  AR(g, [[444, 420], [OX[0] - 70, 476]], A);
+  T(g, 452, 446, "f", "t-mono-strong");
+  OX.forEach(x => AR(g, [[x, 354], [x, 452]], A));
+  const Z = [1.6, 0.5, -0.6], p = softmax(Z), base = 590, sc = 70;
+  OX.forEach((x, k) => {
+    AR(g, [[x, 502], [x, 512]], A);
+    const h = p[k] * sc; S("rect", { x: x - 16, y: base - h, width: 32, height: h, rx: 3, class: "f-clef" }, g);
+    T(g, x + 22, base - h + 4, p[k].toFixed(2), "t-mono-strong");
+  });
+  S("line", { x1: OX[0] - 50, x2: OX[2] + 50, y1: base, y2: base, class: "axis" }, g);
+  T(g, OX[2] + 70, 560, "softmax(z / T)", "t-title");
+  T(g, OX[2] + 70, 578, "T는 저장 때 head에 fold", "t-sub");
+  // 7 training
+  g = G(7);
+  BOX(g, 24, 456, 420, 132, "학습 신호", null, "box");
+  ["soft CE: −Σ target · log softmax(z)", "LoRA backbone lr 1e-4 · head lr 3e-4", "1 epoch · batch 8×2 · cosine · 4096 tok", "보정: 정답 NLL로 T fit (LBFGS)", "RL 없음"].forEach((s, i) => T(g, 38, 500 + i * 18, s, "t-mono"));
+  return svg;
+}
+makeStager($("#dgClef"), $("#clefSvg"), buildClef, [
+  "Jev 요청을 텍스트로 펼쳐 Qwen3.5에 한 번 넣는다. 질문과 옵션의 구간을 평균해 벡터를 만들고, 작은 attention head가 시퀀스 전체를 다시 읽어 옵션마다 점수를 낸다. ‘다음 단계’로 따라가 보자.",
+  "state를 먼저, 그 뒤에 스키마를 쓴다. 질문마다 ID·TYPE·INSTRUCTION, 옵션마다 {option_id, description} JSON이 들어간다. Noul은 true/false 두 옵션, Score는 level 번호가 옵션이 된다. 마지막은 assistant 차례 ‘JOINT SCHEMA DECISIONS:’이다.",
+  "causal backbone에 prefill 한 번. LoRA는 attention·MLP뿐 아니라 Qwen3.5의 Gated DeltaNet(linear attention) 투영에도 붙는다. 이 단계는 decider와 같다. 다른 점은 slot 한 토큰이 아니라 hidden state 전체를 head에 넘긴다는 것이다.",
+  "질문 구간 평균 q, 옵션 구간 평균 c_k, 옵션 토큰들의 LM head 임베딩 평균 ℓ_k(단어 뜻 자체), 마지막 토큰 g를 만든다. 모든 위치는 memory M으로 투영해 둔다. causal이라 옵션 벡터는 자기보다 뒤를 못 봤으므로 다음 단계에서 보충한다.",
+  "옵션마다 query를 만들어 memory 전체에 cross-attention한다(2층). 옵션 토큰 뒤에 나온 내용까지 포함해 ‘이 옵션을 지지하는 근거’를 모은다. causal backbone의 한 방향 한계를 head가 메우는 부분이다.",
+  "질문마다 field 벡터 하나를 만든다: q + 옵션 요약(attention 가중 평균) + g + 타입 임베딩. 4층 decoder에서 field끼리 self-attention하고 memory를 다시 본다. 질문이 여러 개면 서로를 보고 함께 판단한다(joint).",
+  "옵션 점수 = 단어 뜻 prior(ℓ_k와 q+g의 코사인) + 게이트 × (field와 o_k의 코사인 + MLP). 학습 초기에는 gate가 0에 가까워 prior가 주도하고, 학습하며 joint 항이 커진다. softmax 뒤 T는 저장할 때 head 가중치에 녹인다.",
+  "backbone LoRA와 head를 soft CE로 함께 학습한다(head lr이 3배). 보정은 holdout에서 정답 라벨 기준 NLL로 T를 맞춘다. 세 방식 중 RL이 없는 유일한 레시피다.",
+]);
+(function () {
+  const rows = [["typed-decisions", 33.3, 73.7, 76.2], ["BANKING77", 1.4, 74.4, 77.0], ["CLINC150", 1.6, 76.6, 79.0]];
+  const host = $("#clefBars"), W = 460, H = 250, m = { l: 36, r: 10, t: 16, b: 28 };
+  const svg = makeSvg(host, W, H), Y = v => H - m.b - v / 100 * (H - m.t - m.b), pw = (W - m.l - m.r) / rows.length;
+  for (const t of [0, 25, 50, 75, 100]) { S("line", { x1: m.l, x2: W - m.r, y1: Y(t), y2: Y(t), class: "gridl" }, svg); S("text", { x: m.l - 5, y: Y(t) + 4, "text-anchor": "end", text: t + "%" }, svg); }
+  const tip = ensureTip(host), bw = 30, cls = ["f-muted", "f-clef-soft", "f-clef"], names = ["2B 학습 전 head", "0.8B tuned", "2B tuned"];
+  rows.forEach(([name, ...vals], i) => {
+    const cx = m.l + pw * (i + 0.5);
+    vals.forEach((v, j) => {
+      const x = cx + (j - 1) * (bw + 4) - bw / 2, h = Math.max(1, Y(0) - Y(v)), r = Math.min(4, h / 2);
+      S("path", { d: `M${x} ${Y(0)} V${Y(v) + r} Q${x} ${Y(v)} ${x + r} ${Y(v)} H${x + bw - r} Q${x + bw} ${Y(v)} ${x + bw} ${Y(v) + r} V${Y(0)} Z`, class: cls[j] }, svg);
+      if (j) S("text", { x: x + bw / 2, y: Y(v) - 5, "text-anchor": "middle", text: v.toFixed(0), class: "lbl-strong" }, svg);
+      const hit = S("rect", { x, y: m.t, width: bw, height: H - m.t - m.b, fill: "transparent" }, svg);
+      hit.addEventListener("mousemove", e => showTip(host, tip, e, `${name}<br>${names[j]}: ${v.toFixed(1)}%`));
+      hit.addEventListener("mouseleave", () => { tip.hidden = true; });
+    });
+    S("text", { x: cx, y: H - 8, "text-anchor": "middle", text: name }, svg);
+  });
+  S("line", { x1: m.l, x2: W - m.r, y1: Y(0), y2: Y(0), class: "axis" }, svg);
+})();
 
 /* ---------- deck navigation ---------- */
 const slides = $$(".slide");
