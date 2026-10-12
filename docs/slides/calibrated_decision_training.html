@@ -263,14 +263,15 @@ svg .row-line { stroke: var(--line); stroke-width: 1; }
 <!-- 0 -->
 <section class="slide" data-title="표지">
   <div class="slide-inner title-slide">
-    <div class="eyebrow">jevlike_training.ipynb · 1.11.1 – 1.11.7 · 부록 Unsloth</div>
+    <div class="eyebrow">jevlike_training.ipynb · 1.11.1 – 1.11.7 · 부록 Unsloth · Microsoft</div>
     <h1>확률을 정직하게 만드는<br>두 가지 학습 루프</h1>
-    <p class="lead">Laya와 decider-2B v10은 둘 다 “한 번의 forward로 후보 확률을 읽는” 의사결정 모델을 calibration 쪽으로 학습한다. 무엇을 target으로 삼고, 어떤 RL 업데이트를 쓰고, 학습 뒤 무엇을 보정하는지 훈련 루프를 직접 돌려 보며 비교한다. 부록에서는 같은 일을 RL 없이 해내는 Unsloth의 Clef식 레시피를 함께 본다.</p>
+    <p class="lead">Laya와 decider-2B v10은 둘 다 “한 번의 forward로 후보 확률을 읽는” 의사결정 모델을 calibration 쪽으로 학습한다. 무엇을 target으로 삼고, 어떤 RL 업데이트를 쓰고, 학습 뒤 무엇을 보정하는지 훈련 루프를 직접 돌려 보며 비교한다. 부록에서는 같은 일을 RL 없이 해내는 Unsloth의 Clef식 레시피와, 레시피를 공개하지 않은 Microsoft-Decision-1을 함께 본다.</p>
     <div class="row">
       <span class="tag laya">Laya · fa9a2a7</span>
       <span class="tag decider">decider · 4502408</span>
       <span class="tag clef">Unsloth · PR #12772</span>
-      <span class="tag both">분석일 2026-10-03 · 부록 2026-10-08</span>
+      <span class="tag both">Microsoft-Decision-1</span>
+      <span class="tag both">분석일 2026-10-03 · 부록 2026-10-08, 10-12</span>
     </div>
     <div class="agenda" id="agenda"></div>
     <p class="small muted">←/→ 또는 Space로 넘긴다. 시뮬레이션은 모두 브라우저에서 도는 교육용 toy다. 실제 모델 가중치나 원래 training run을 실행한 결과가 아니다. TypeSafe RLCD의 공개 구현으로 간주하지 않는다.</p>
@@ -745,9 +746,9 @@ svg .row-line { stroke: var(--line); stroke-width: 1; }
 </section>
 
 <!-- U3 -->
-<section class="slide" data-title="Unsloth · 결과와 세 방식 비교">
+<section class="slide" data-title="Unsloth · 결과와 방식 비교">
   <div class="slide-inner">
-    <div class="eyebrow">부록 · 결과 <span class="tag clef">Unsloth</span><span class="tag laya">Laya</span><span class="tag decider">decider</span></div>
+    <div class="eyebrow">부록 · 결과 <span class="tag clef">Unsloth</span><span class="tag laya">Laya</span><span class="tag decider">decider</span><span class="tag both">MS Decision-1</span></div>
     <h2>0.8B를 4.3 GB로 학습해 거의 0에서 75% 근처까지</h2>
     <div class="grid-4-6">
       <div class="panel clef stack">
@@ -758,17 +759,70 @@ svg .row-line { stroke: var(--line); stroke-width: 1; }
       </div>
       <div class="stack">
         <div class="tbl-wrap"><table>
-          <thead><tr><th></th><th class="laya-h">Laya</th><th class="decider-h">decider</th><th class="clef-h">Unsloth · Clef</th></tr></thead>
+          <thead><tr><th></th><th class="laya-h">Laya</th><th class="decider-h">decider</th><th class="clef-h">Unsloth · Clef</th><th>MS Decision-1</th></tr></thead>
           <tbody>
-            <tr><td>backbone</td><td>ModernBERT (양방향)</td><td>Qwen3.5 (causal)</td><td>Qwen3.5 (causal)</td></tr>
-            <tr><td>확률을 읽는 곳</td><td>옵션별 [MASK] 한 토큰</td><td>slot 한 토큰 × 글자 행</td><td>질문·옵션 구간 평균 + 전체 attention</td></tr>
-            <tr><td>head</td><td>2층 encoder + scalar MLP</td><td>없음 (LM head 재사용)</td><td>routing 2층 + decoder 4층 + scorer</td></tr>
-            <tr><td>질문 여러 개</td><td>질문마다 따로</td><td>slot끼리 독립</td><td>head에서 질문끼리 attention</td></tr>
-            <tr><td>학습 목표</td><td>teacher soft CE + noisy-logit RL</td><td>SFT → PPO · belief · consistency · retention</td><td>soft CE (+ 선택: smoothing · Brier · ordinal)</td></tr>
-            <tr><td>보정</td><td>teacher 분포 NLL, type별 T</td><td>정답 NLL, type별 T</td><td>정답 NLL, 전체 T × type별 T, head에 fold</td></tr>
+            <tr><td>backbone</td><td>ModernBERT (양방향)</td><td>Qwen3.5 (causal)</td><td>Qwen3.5 (causal)</td><td>Qwen3.5-9B</td></tr>
+            <tr><td>확률을 읽는 곳</td><td>옵션별 [MASK] 한 토큰</td><td>slot 한 토큰 × 글자 행</td><td>질문·옵션 구간 평균 + 전체 attention</td><td class="muted">비공개</td></tr>
+            <tr><td>head</td><td>2층 encoder + scalar MLP</td><td>없음 (LM head 재사용)</td><td>routing 2층 + decoder 4층 + scorer</td><td class="muted">비공개</td></tr>
+            <tr><td>질문 여러 개</td><td>질문마다 따로</td><td>slot끼리 독립</td><td>head에서 질문끼리 attention</td><td>한 요청에 여러 질문 (구현 비공개)</td></tr>
+            <tr><td>학습 목표</td><td>teacher soft CE + noisy-logit RL</td><td>SFT → PPO · belief · consistency · retention</td><td>soft CE (+ 선택: smoothing · Brier · ordinal)</td><td class="muted">비공개</td></tr>
+            <tr><td>보정</td><td>teacher 분포 NLL, type별 T</td><td>정답 NLL, type별 T</td><td>정답 NLL, 전체 T × type별 T, head에 fold</td><td class="muted">비공개 (목표: 0.9라고 하면 10번 중 9번)</td></tr>
           </tbody>
         </table></div>
-        <div class="note">세 방식 중 RL이 없는 것은 Unsloth뿐이다. 대신 데이터 변환·augmentation·보정·저장이 한 API에 묶여 있어 <strong>1.11.7의 2–3단계(baseline + 보정)를 가장 빨리 세울 수 있는 도구</strong>다. Laya식 RL이나 decider식 actor/belief는 그 위에 따로 얹어 비교해야 한다.</div>
+        <div class="note">코드가 공개된 세 방식 중 RL이 없는 것은 Unsloth뿐이다. 대신 데이터 변환·augmentation·보정·저장이 한 API에 묶여 있어 <strong>1.11.7의 2–3단계(baseline + 보정)를 가장 빨리 세울 수 있는 도구</strong>다. Laya식 RL이나 decider식 actor/belief는 그 위에 따로 얹어 비교해야 한다.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MS1 -->
+<section class="slide" data-title="Microsoft-Decision-1">
+  <div class="slide-inner">
+    <div class="eyebrow">부록 · 2026-10-09 발표 <span class="tag both">Microsoft-Decision-1 · 호스팅 전용</span></div>
+    <h2>Microsoft-Decision-1: 같은 API, 비공개 레시피</h2>
+    <p class="lead">Qwen3.5-9B를 Microsoft가 후속 학습(post-training)한 결정 모델이다. Foundry(공개 프리뷰)와 OpenRouter에서 API로만 쓸 수 있고 가중치는 공개되지 않았다. 요청 형식은 Jev와 같은 <code>/v1/systemone</code>이다.</p>
+    <div class="grid2">
+      <div class="stack">
+        <h3>공개된 것</h3>
+        <div class="tbl-wrap"><table>
+          <tbody>
+            <tr><td>base</td><td>Qwen3.5-9B를 후속 학습. 이후 버전은 MAI·OpenAI 모델로 옮긴다고 보도됨</td></tr>
+            <tr><td>호출</td><td>Foundry <code>…/providers/microsoft/v1/systemone</code>, <code>model</code>에는 배포 이름</td></tr>
+            <tr><td>타입</td><td>noul → 0–1 확률 · choice → 선택지 + 옵션별 확률 · score → 값 + level별 확률</td></tr>
+            <tr><td>Score 값</td><td>level을 낮은 것부터 나열, 반환 값은 <strong>level 번호의 확률 가중 평균</strong>(기댓값). 절대 점수보다 순서·임계값 용도로 쓰라고 안내</td></tr>
+            <tr><td>한계</td><td>32,768 토큰 · 영어 최적화(20여 개 언어 평가) · 텍스트만 · 표현과 옵션 순서에 따라 점수가 바뀔 수 있음</td></tr>
+            <tr><td>가격</td><td>OpenRouter 입력 100만 토큰당 $0.042 · 출력 $0</td></tr>
+          </tbody>
+        </table></div>
+<pre class="code">{"model": "&lt;배포 이름&gt;",
+ "state": "결제는 됐는데 주문 내역에 안 보여요",
+ "questions": {
+   "team":    {"type": "choice", "instructions": "어느 팀?",
+               "criteria": {"billing": "결제", "shipping": "배송"}},
+   "refund":  {"type": "noul",   "instructions": "환불 요청인가?"},
+   "urgency": {"type": "score",  "instructions": "얼마나 급한가?",
+               "criteria": ["낮음", "보통", "높음"]}}}</pre>
+        <p class="small muted">요청 형식은 개략이다. 정확한 필드와 응답 형식은 Microsoft Learn 문서를 기준으로 확인한다.</p>
+      </div>
+      <div class="stack">
+        <h3>공개되지 않은 것</h3>
+        <div class="note">확률을 읽는 방식(readout), 학습 데이터, 목적함수, RL 사용 여부, 보정 방법, 파라미터 수가 모두 공개되지 않았다. 앞 장들처럼 <strong>코드로 훈련 루프를 해부할 수 없다.</strong> 우리가 할 수 있는 건 같은 API로 호출해 결과를 측정하는 것뿐이다.</div>
+        <h3>Microsoft 자체 측정 (36개 벤치마크, 약 14.7만 문항)</h3>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>모델</th><th class="num">평균 정확도</th><th class="num">calibration (100 = 완벽)</th><th class="num">지연 p50</th></tr></thead>
+          <tbody>
+            <tr><td>Microsoft-Decision-1</td><td class="num">83.5%</td><td class="num">92.2</td><td class="num">85 ms</td></tr>
+            <tr><td>Jev 1.13.0</td><td class="num">82.3%</td><td class="num">93.7</td><td class="num">240 ms</td></tr>
+            <tr><td>Quyet-1.0-Large</td><td class="num">81.9%</td><td class="num">93.1</td><td class="num">380 ms</td></tr>
+          </tbody>
+        </table></div>
+        <ul class="tight small">
+          <li>모든 수치는 Microsoft가 직접 측정했다. 어떤 36개 벤치마크인지, 비교 모델을 어떻게 설정했는지 재현 가능한 형태로 공개되지 않았다.</li>
+          <li>정확도는 가장 높지만 <strong>calibration은 셋 중 가장 낮다.</strong> calibration 점수의 계산식도 공개되지 않았다(ECE가 아님). 제3자 JevBench 스냅샷은 Foundry 실행에서 84.40을 보고해 차이가 크다.</li>
+          <li>지연 시간 비교는 측정 조건이 다르다. Decision-1은 Foundry 같은 리전에서 직접 쟀고, 경쟁 모델 값은 JevBench 공식에서 나왔다. “GPT-6 Sol보다 35배 빠름”도 Microsoft 주장이다.</li>
+          <li>Cloudflare Clef 계열은 비교에 들어가지 않았다.</li>
+        </ul>
+        <div class="note">우리 실습에서는 <strong>외부 기준점</strong>으로 쓸 수 있다. 같은 systemone 형식이라서 우리 test split을 그대로 보내 정확도·NLL·ECE를 직접 재고, 직접 학습한 Qwen3.5-0.8B(Unsloth)와 비교하면 된다. 이때 test 데이터가 외부 API로 나간다는 점을 감안해야 한다.</div>
       </div>
     </div>
   </div>
@@ -847,6 +901,12 @@ svg .row-line { stroke: var(--line); stroke-width: 1; }
       <li><a href="https://github.com/unslothai/unsloth/blob/main/unsloth/models/decision.py" target="_blank" rel="noopener">decision.py</a> · loss, DecisionTrainer, calibrate · <a href="https://github.com/unslothai/unsloth/blob/main/unsloth/models/decision_datasets.py" target="_blank" rel="noopener">decision_datasets.py</a> · 변환기, augmentation</li>
       <li><a href="https://github.com/unslothai/unsloth/blob/main/scripts/train_decision_from_lm.py" target="_blank" rel="noopener">train_decision_from_lm.py</a> · 기본 하이퍼파라미터</li>
     </ul></div>
+    <div class="panel stack"><h3>Microsoft-Decision-1 · 2026-10-12 기준 (원문 직접 열람 불가, 검색 요약으로 확인)</h3><ul class="tight small">
+      <li><a href="https://learn.microsoft.com/en-us/azure/foundry/foundry-models/how-to/use-foundry-models-microsoft-decision" target="_blank" rel="noopener">Deploy and use Microsoft-Decision-1 in Microsoft Foundry</a> · 공식 문서, 요청 형식</li>
+      <li><a href="https://techcommunity.microsoft.com/blog/azure-ai-foundry-blog/introducing-microsoft-decision-1-in-microsoft-foundry-for-decision-and-classific/4562742" target="_blank" rel="noopener">Introducing Microsoft-Decision-1 in Microsoft Foundry</a> · 발표</li>
+      <li><a href="https://techcommunity.microsoft.com/blog/educatordeveloperblog/not-every-decision-needs-an-llm-getting-started-with-microsoft-decision-1/4563468" target="_blank" rel="noopener">Not Every Decision Needs an LLM</a> · 시작 가이드, Score 의미</li>
+      <li><a href="https://www.marktechpost.com/2026/10/09/microsoft-ai-releases-microsoft-decision-1-a-qwen3-5-9b-decision-scoring-model/" target="_blank" rel="noopener">MarkTechPost</a> · <a href="https://the-decoder.com/microsofts-decision-1-model-enters-the-fast-growing-ai-decision-model-race/" target="_blank" rel="noopener">The Decoder</a> · <a href="https://www.pk-sharma.com/briefing/microsoft-decision-1-4-5-times-faster-runner-up-raw-timing-gives-1-4-times" target="_blank" rel="noopener">지연 시간 비교 비판</a> · 보도와 분석</li>
+    </ul></div>
     <div class="panel stack"><h3>관련 연구 (1.11)</h3><ul class="tight small">
       <li><a href="https://typesafe.ai/blog/introducing-system-one-models-and-jev" target="_blank" rel="noopener">TypeSafe · System One models and Jev</a> · RLCD 소개. 공개 자료로 reward·optimizer 특정 불가.</li>
       <li><a href="https://arxiv.org/abs/2507.16806v1" target="_blank" rel="noopener">RLCR · Beyond Binary Rewards (2025-07)</a> · correctness + Brier reward.</li>
@@ -859,7 +919,7 @@ svg .row-line { stroke: var(--line); stroke-width: 1; }
 <nav class="navbar" aria-label="슬라이드 이동">
   <button id="prev" aria-label="이전 슬라이드">←</button>
   <button id="next" aria-label="다음 슬라이드">→</button>
-  <span class="count" id="count">1 / 21</span>
+  <span class="count" id="count">1 / 22</span>
   <div class="progress"><i id="bar"></i></div>
   <select id="jump" aria-label="슬라이드 선택"></select>
 </nav>
